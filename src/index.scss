@@ -222,4 +222,9 @@ header {
     &:active {
       background: darken(#9dd558, 5%);
     }
+
+    &:disabled {
+      background-color: #bebebe !important;
+      cursor: default !important;
+    }
 }
