@@ -1,12 +1,18 @@
 import React, {useContext, useState} from 'react';
-import Info from "./Info";
-import {store} from "../App";
+import Info from "../Info";
+import {store} from "../../App";
 import axios from "axios";
+import styles from "./Drawer.module.scss"
 
 const delay = () => new Promise((resolve) => setTimeout(resolve, 1000))
+function numberWithSpaces(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+}
 
-const Drawer = ({onCloseCart, onRemove}) => {
+const Drawer = ({onCloseCart, onRemove, opened}) => {
     const { cartItems, setCartItems } = useContext(store)
+    const totalPrice = cartItems.reduce((sum, obj) => obj.price + sum, 0)
+    const tax = Math.floor(totalPrice * 0.13)
     const [orderId, setOrderId] = useState(null)
     const [isOrderComplete, setIsOrderCompleted] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
@@ -30,8 +36,8 @@ const Drawer = ({onCloseCart, onRemove}) => {
     }
 
     return (
-        <div className="overlay">
-            <div className="drawer">
+        <div className={`${styles.overlay} ${opened ? styles.overlayVisible : ''}`}>
+            <div className={styles.drawer}>
                 <h2 className="mb-20 d-flex justify-between">Корзина
                     <img src="/images/button_remove.svg" alt="Close" className="removeItemBtn cu-p"
                          onClick={onCloseCart}/></h2>
@@ -60,12 +66,12 @@ const Drawer = ({onCloseCart, onRemove}) => {
                                 <li className="d-flex align-end mb-20">
                                     <span>Итого:</span>
                                     <div></div>
-                                    <b>21 598 руб.</b>
+                                    <b>{numberWithSpaces(totalPrice)} руб.</b>
                                 </li>
                                 <li className="d-flex align-end mb-20">
-                                    <span>Налог 5%:</span>
+                                    <span>Налог 13%:</span>
                                     <div></div>
-                                    <b>1 075 руб.</b>
+                                    <b>{numberWithSpaces(tax)} руб.</b>
                                 </li>
                             </ul>
                             <button className="greenButton" onClick={onClickOrder} disabled={isLoading}>Оформить заказ

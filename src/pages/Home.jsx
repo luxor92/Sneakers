@@ -7,7 +7,7 @@ const Home = ({items, searchValue, setSearchValue, onChangeSearchInput, onAddIte
         const filteredItems = items.filter((item) => item.name.toLowerCase().includes(searchValue.toLowerCase()))
         return (isLoading ? Array(8).fill(0) : filteredItems).map((item) =>
                 <Card name={item.name} imageUrl={item.imageUrl} price={item.price} id={item.id} key={item.id}
-                      onPlusClick={onAddItemToCart} isLoading={isLoading} onFavoritesClick={onAddFavoriteItem}/>
+                      onPlusClick={onAddItemToCart} isLoading={isLoading} onFavoritesClick={onAddFavoriteItem} parentId={item.parentId}/>
         )
     }
 

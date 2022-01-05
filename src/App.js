@@ -1,11 +1,12 @@
 import React, {createContext, useEffect, useState} from "react";
 import Header from "./components/Header";
-import Drawer from "./components/Drawer";
+import Drawer from "./components/Drawer/Drawer";
 import axios from "axios";
 import {Routes} from "react-router-dom";
 import {Route} from "react-router";
 import Home from "./pages/Home";
 import Favorites from "./pages/Favorites";
+import Orders from "./pages/Orders";
 
 /*const sneakers = [
     {
@@ -90,19 +91,24 @@ function App() {
     const onAddItemToCart = (newSneakerInCart) => {
         try {
             if (cartItems.find(addedItem => Number(addedItem.id) === Number(newSneakerInCart.id))) {
-                axios.delete(`https://61d3322cb4c10c001712b857.mockapi.io/cart/${Number(newSneakerInCart.id)}`);
                 setCartItems((prev) => prev.filter((addedItem) => Number(addedItem.id) !== Number(newSneakerInCart.id)))
+                axios.delete(`https://61d3322cb4c10c001712b857.mockapi.io/cart/${Number(newSneakerInCart.id)}`);
             } else {
-                axios.post("https://61d3322cb4c10c001712b857.mockapi.io/cart", newSneakerInCart)
                 setCartItems((prev) => [...prev, newSneakerInCart])
+                axios.post("https://61d3322cb4c10c001712b857.mockapi.io/cart", newSneakerInCart)
             }
         } catch (e) {
             alert("Не удалось добавить товар в корзину")
         }
     }
     const onRemoveItemFromCart = (id) => {
-        axios.delete(`https://61d3322cb4c10c001712b857.mockapi.io/cart/${id}`)
-        setCartItems((prev) => prev.filter(item => item.id !== id))
+        try {
+            setCartItems((prev) => prev.filter(item => item.id !== id))
+            axios.delete(`https://61d3322cb4c10c001712b857.mockapi.io/cart/${id}`)
+        }
+        catch (e) {
+            alert("Не удалось удалить элемент из корзины")
+        }
     }
     const onAddFavoriteItem = async (item) => {
         try {
@@ -121,26 +127,26 @@ function App() {
         setSearchValue(event.target.value)
     }
     const isItemAdded = (id) => {
-        return cartItems.some((obj) => Number(obj.id) === Number(id))
+        return cartItems.some((obj) => Number(obj.parentId) === Number(id))
     }
 
-    return (
-        <store.Provider value={{items, cartItems, favorites, isItemAdded, onAddFavoriteItem, setCartOpened, setCartItems}}>
-            <div className="wrapper clear">
-                {cartOpened && <Drawer onCloseCart={() => setCartOpened(false)} cartItems={cartItems}
-                                       onRemove={onRemoveItemFromCart}/>}
-                <Header onClickCart={() => setCartOpened(true)}/>
 
+    return (
+        <store.Provider value={{items, cartItems, favorites, isItemAdded, onAddFavoriteItem, setCartOpened,
+            setCartItems, onAddItemToCart}}>
+            <div className="wrapper clear">
+                <Drawer onCloseCart={() => setCartOpened(false)} cartItems={cartItems} onRemove={onRemoveItemFromCart}
+                        opened={cartOpened}/>
+                <Header onClickCart={() => setCartOpened(true)}/>
                 <Routes>
                     <Route path="/"
                            element={<Home items={items} searchValue={searchValue} setSearchValue={setSearchValue}
                                           onAddItemToCart={onAddItemToCart} cartItems={cartItems}
                                           onChangeSearchInput={onChangeSearchInput}
-                                          onAddFavoriteItem={onAddFavoriteItem}
-                                          isLoading={isLoading}/>}/>
+                                          onAddFavoriteItem={onAddFavoriteItem} isLoading={isLoading}/>}/>
                     <Route path="/favorites" element={<Favorites />}/>
+                    <Route path="/orders" element={<Orders />}/>
                 </Routes>
-
             </div>
         </store.Provider>
     );
